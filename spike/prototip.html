@@ -487,7 +487,6 @@ function update(f, dt) {
   f.floatT = Math.max(0, f.floatT - dt); f.chaseT = Math.max(0, f.chaseT - dt); f.landT = Math.max(0, f.landT - dt);
   if (f.counterT > 0) { f.counterT -= dt; if (f.counterT <= 0) counterStrike(f); }
   if (f.spinV) { f.spin += f.spinV * dt; if (Math.abs(f.spin) >= Math.PI * 2) { f.spin = 0; f.spinV = 0; } }
-  const wasAir = inAir(f);
   let tgt = POSE.idle, rate = 14, grav = 1;
   if (f.state !== 'hit' && f.state !== 'air' && f.state !== 'down') f.comboTaken = 0;
 
@@ -642,7 +641,8 @@ function update(f, dt) {
   f.x += f.vx * dt; f.y += f.vy * dt;
   if (f.y >= 0) {
     f.y = 0;
-    if (wasAir && f.vy > 0) {
+    // yere değdi: 'havada' durumundaki karakter her zaman iner (önceki karenin yüksekliğine bakma)
+    if (f.vy > 0 || (f.state === 'air' && f.vy >= 0)) {
       if (f.state === 'air') {
         if (f.slam) { f.slam = false; f.vy = -650; f.vx *= .4; f.y = -1; bigSlam(f); }
         else if (f.vy > 1000) { f.vy = -f.vy * .28; f.vx *= .6; f.y = -1; dust(f.x, 10); shake = Math.max(shake, 9); sfx.land(); }
